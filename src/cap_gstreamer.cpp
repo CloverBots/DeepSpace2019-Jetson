@@ -55,6 +55,7 @@
  * \brief The gst_initializer class
  * Initializes gstreamer once in the whole process
  */
+#include <iostream>
 class gst_initializer
 {
 public:
@@ -163,8 +164,10 @@ bool CvCapture_GStreamer::grabFrame()
 IplImage * CvCapture_GStreamer::retrieveFrame(int)
 {
     if(!buffer)
+{
+fprintf(stderr,"GStreamer: unable to map buffer");
         return 0;
-
+}
     //construct a frame header if we did not have any yet
     if(!frame)
     {
@@ -230,7 +233,7 @@ IplImage * CvCapture_GStreamer::retrieveFrame(int)
     gboolean success = gst_buffer_map(buffer,info, (GstMapFlags)GST_MAP_READ);
     if (!success){
         //something weird went wrong here. abort. abort.
-        //fprintf(stderr,"GStreamer: unable to map buffer");
+        fprintf(stderr,"GStreamer: unable to map buffer");
         return 0;
     }
     frame->imageData = (char*)info->data;

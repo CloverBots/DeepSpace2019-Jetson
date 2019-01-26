@@ -2,21 +2,25 @@
 #include "helper.hpp"
 #include "VisionPipeline.h"
 #include "networktables/NetworkTable.h"
+#include <chrono>
+
+typedef std::chrono::high_resolution_clock Clock;
 
 #define OUTPUT_VALUES true
 
 int device = 0;
-int width = 640;
-int height = 480;
+int width = 1280;
+int height = 720;
 int framerate = 60;
 bool mjpeg = false;
 int bitrate = 600000;
 int port = 5805;
+std::string videoSinkIP = "10.36.74.2";
 
 int main()
 {
 	CvCapture_GStreamer mycam;
-    string read_pipeline = createReadPipelineSplit (
+    	string read_pipeline = createReadPipelineSplit (
             device, width, height, framerate, mjpeg, 
             bitrate, videoSinkIP, port);
 
@@ -26,10 +30,10 @@ int main()
 
 	VisionPipeline pipeline;
 	
-	NetworkTable::SetClientMode();
-	NetworkTable::SetTeam(3674);
-	NetworkTable::SetIPAddress("10.36.74.61");
-	table = NetworkTable::GetTable("vision");
+	//NetworkTable::SetClientMode();
+	//NetworkTable::SetTeam(3674);
+	//NetworkTable::SetIPAddress("10.36.74.61");
+	//table = NetworkTable::GetTable("vision");
 
 	
 	std::vector<std::vector<cv::Point> > contours;
@@ -37,16 +41,16 @@ int main()
 	std::vector<float> contour_angle;
 
 	cv::Mat frame;
-	cap >> frame;
 	//cv::findContours(mask, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 	//std::cout << contours.size() << std::endl;
 	for (;;)
 	{
-		IplImage* img = mycam.retrieveFrame(0);
-		frame = cv::cvarrToMat(img).clone();
-		pipeline.Process(frame);
-		contours = *pipeline.GetFilterContoursOutput();
 		auto t1 = Clock::now();
+		mycam.grabFrame();
+		IplImage* img = mycam.retrieveFrame(0);
+
+		frame = cv::cvarrToMat(img).clone();
+		contours = pipeline.Process(frame);
 		for (int i = 0; i < contours.size(); ++i)
 		{
 			cv::RotatedRect rotatedRect = cv::minAreaRect(contours[i]);
@@ -146,13 +150,14 @@ int main()
 					}
 				}
 			}
+			
 		}
 		auto t2 = Clock::now();
 
 		std::cout << "Delta t2-t1: "
 			<< std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count()
 			<< " milliseconds" << std::endl;
-		cv::waitKey();
+		std::cout << contour_center.at(0).x << std::endl;
 
 		cv::imshow("mask", frame);
 		contour_angle.clear();
