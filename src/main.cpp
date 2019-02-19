@@ -12,7 +12,7 @@ typedef std::chrono::high_resolution_clock Clock;
 const int angle_min = 3;
 const int angle_max = 40;
 
-int device = 0;
+int device = 1;
 int width = 1280;
 int height = 720;
 int framerate = 60;
@@ -29,7 +29,7 @@ int closest(std::vector<cv::Point2f> vec, int value)
 	for(int i = 0; i < vec.size(); i++)
 	{	
 		distances.push_back(abs(value - vec[i].x));
-		std::cout << abs(value - vec[i].x) << "  " << i << std::endl;
+		//std::cout << abs(value - vec[i].x) << "  " << i << std::endl;
 	}
 	if(vec.size() != 0)
 	{	
@@ -261,12 +261,12 @@ int main()
 		//std::cout << "Delta t2-t1: "
 		//	<< std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count()
 		//	<< " milliseconds" << std::endl;
-		//std::cout << contour_center.at(0).x << std::endl;
+		//std::cout << data_center.size() << std::endl;
 		table->PutNumber("data_amount", data_center.size());
 		
 		for(int i = 0; i < data_center.size(); i++)
 		{
-			//std::cout<<data_center.at(i).y<<std::endl;
+			//std::cout<<data_center.at(i).x<<std::endl;
 			table->PutNumber("data_center"+i, data_center.at(i).x);
 			table->PutNumber("data_size"+i, data_size.at(i));
 		}
